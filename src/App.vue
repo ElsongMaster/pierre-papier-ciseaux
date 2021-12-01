@@ -29,13 +29,13 @@
       <div v-else class="container-roundplay flex mt-10 flex justify-evenly w-3/4 mx-auto h-3/4">
         <div class="container-handPlayer flex flex-col justify-evenly items-center  w-1/3 ">
           <h2 class="uppercase font-bold text-white  text-center w-auto">you picked</h2>
-          <div v-if='playerChoice =="paper"' class="containerPlayer-paper " :name="paper">
+          <div v-if='playerChoice =="paper"' class="containerPlayer-paper hand paperPlayer " :name="paper">
             <img src="./assets/icon-paper.svg " alt="" />
           </div>
-          <div v-else-if='playerChoice =="rock"' class="containerPlayer-rock " :name="rock">
+          <div v-else-if='playerChoice =="rock"' class="containerPlayer-rock hand rockPlayer" :name="rock">
             <img src="./assets/icon-rock.svg" alt="" />
           </div>
-          <div v-else-if='playerChoice =="scissor"' class="containerPlayer-scissor " :name="scissor">
+          <div v-else-if='playerChoice =="scissor"' class="containerPlayer-scissor hand scissorPlayer " :name="scissor">
             <img src="./assets/icon-scissors.svg" alt="" />
           </div>
         </div>
@@ -47,14 +47,14 @@
         </div>
         <div  class="container-handHouse flex flex-col justify-evenly items-center  w-1/3 ">
           <h2 class="uppercase font-bold text-white  text-center w-auto  ">the house picked</h2>
-          <div v-if='houseChoice == "paper"' class="containerPlayer-paper " :name="paper">
+          <div v-if='houseChoice == "paper"' class="containerPlayer-paper hand paperHouse " :name="paper">
             <img src="./assets/icon-paper.svg" alt="" />
           </div>
-          <div v-else-if='houseChoice == "rock"'  class="containerPlayer-rock " :name="rock">
+          <div v-else-if='houseChoice == "rock"'  class="containerPlayer-rock hand rockHouse " :name="rock">
             <img src="./assets/icon-rock.svg" alt="" />
           </div>
 
-          <div v-else-if='houseChoice == "scissor"' class="containerPlayer-scissor " :name="scissor">
+          <div v-else-if='houseChoice == "scissor"' class="containerPlayer-scissor hand scissorHouse " :name="scissor">
             <img src="./assets/icon-scissors.svg" alt="" />
           </div>
           <div v-else-if="houseChoice === ''" class="handEmpty"></div>
@@ -62,7 +62,21 @@
       </div>
     </div>
   </div>
-  <button class="btn-rules border rounded-lg px-7 py-1 text-white uppercase">
+  <div v-if="displayRule" class="rule-container">
+          <div class="contenair-imgRules bg-white rounded-lg ">
+            <div class="content-header flex mb-3">
+
+              <div  class="rule-title w-1/2 flex justify-start"><span class="uppercase text-sm font-bold">rule</span></div>
+              <div class="content-imgClose w-1/2 flex justify-end">
+                <img  src="./assets/icon-close.svg" alt="" @click="closeModal()">
+                
+              </div>
+            </div>
+            <img class=" w-3/4 mx-auto" src="./assets/image-rules.svg" alt="">
+
+          </div>
+  </div>
+  <button @click="showModal()" class="btn-rules border rounded-lg px-7 py-1 text-white uppercase">
     rules
   </button>
 </template>
@@ -84,7 +98,8 @@ export default {
       possibleChoice : ["paper","scissor","rock"],
       result:"",
       displayResult:false,
-      score:0
+      score:0,
+      displayRule: false
     };
   },
 
@@ -94,10 +109,23 @@ export default {
       this.playerMakeChoice = true
       setTimeout(function(){
        this.houseChoice =  this.possibleChoice[Math.floor(Math.random() * this.possibleChoice.length)]
-       this.checkWinner()
        this.displayResult = true
+       this.checkWinner()
       }.bind(this),1000)
+
+
     },
+
+    setClassCircle(handNameWinner){
+        var allHand = Array.from(document.getElementsByClassName('hand'))
+        console.log("setCircle",allHand)
+        allHand.forEach(elt=>{
+          if(elt.classList.contains(handNameWinner)){
+            elt.classList.add('circle')
+          }
+        })
+    },
+
 
     checkWinner() {
       switch (this.playerChoice) {
@@ -105,9 +133,14 @@ export default {
           if(this.houseChoice == "scissor"){
             this.result = "lose"
             this.score-=1
+            setTimeout(function(){
+
+              this.setClassCircle("scissorHouse")
+              }.bind(this),500)
           }else if(this.houseChoice == "rock"){
             this.result = "win"
             this.score+=1
+            this.setClassCircle("paperPlayer")
           }else{
             this.result = "equality"
           }    
@@ -116,9 +149,14 @@ export default {
           if(this.houseChoice == "rock"){
             this.result = "lose"
             this.score-=1
+            setTimeout(function(){
+
+              this.setClassCircle("rockHouse")
+              }.bind(this),500)
           }else if(this.houseChoice == "paper"){
             this.result = "win"
             this.score+=1
+            this.setClassCircle("scissorPlayer")
           }else{
             this.result = "equality"
           }
@@ -127,9 +165,14 @@ export default {
           if(this.houseChoice == "paper"){
             this.result = "lose"
             this.score-=1
+            setTimeout(function(){
+
+              this.setClassCircle("paperHouse")
+              }.bind(this),500)
           }else if(this.houseChoice == "scissor"){
             this.result = "win"
             this.score+=1
+            this.setClassCircle("rockPlayer")
           }else{
             this.result = "equality"
           }
@@ -148,8 +191,24 @@ export default {
 
       this.result=""
       this.displayResult=false
+      var allHand = Array.from(document.getElementsByClassName('hand'))
+      console.log(allHand)
+      allHand.forEach(elt=>{
+        if(elt.classList.contains('circle')){
+          elt.classList.remove('circle')
+        }
+
+    })
+    },
+
+    showModal(){
+      this.displayRule = true
+    },
+    closeModal(){
+      this.displayRule = false
     }
   },
+
 };
 </script>
 
@@ -254,26 +313,26 @@ export default {
 }
 
 .circle {
-  height:100px;
-  width:100px;
-  border-radius:50%;
-  background-color:red;
+  // height:100px;
+  // width:100px;
+  // border-radius:50%;
+  // background-color:red;
   
   position:relative;
-  top:100px;
-  left:300px;
+  // top:100px;
+  // left:300px;
   
   -webkit-transition:height .25s ease, width .25s ease;
   transition:height .25s ease, width .25s ease;
   
-  -webkit-transform:translate(-50%,-50%);
-  transform:translate(-50%,-50%);
+  // -webkit-transform:translate(-50%,-50%);
+  // transform:translate(-50%,-50%);
 }
 
-.circle:hover{
-  height:150px;
-  width:150px;
-}
+// .circle:hover{
+//   height:150px;
+//   width:150px;
+// }
 
 .circle:before,
 .circle:after {
@@ -282,7 +341,9 @@ export default {
   position:absolute;
   top:0; right:0; bottom:0; left:0;
   border-radius:50%;
-  border:1px solid red;
+  border:1px solid rgb(211, 204, 204);
+  // -webkit-transform:translate(-50%,-50%);
+  // transform:translate(-50%,-50%);
 }
 
 .circle:before {
@@ -294,11 +355,11 @@ export default {
   animation: ripple 2s linear 1s infinite;
 }
 
-.circle:hover:before,
-.circle:hover:after {
-  -webkit-animation: none;
-  animation: none;
-}
+// .circle:hover:before,
+// .circle:hover:after {
+//   -webkit-animation: none;
+//   animation: none;
+// }
 
 @-webkit-keyframes ripple{
   0% {-webkit-transform:scale(1); }
@@ -310,5 +371,48 @@ export default {
   0% {transform:scale(1); }
   75% {transform:scale(1.75); opacity:1;}
   100% {transform:scale(2); opacity:0;}
+}
+
+.rule-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: rgba(0,0,0,0.7);
+  position: absolute;
+  top:0;
+  z-index: 2;
+  .contenair-imgRules{
+    padding: 15px;
+    height: 60%;
+    width: 30%;
+    .content-header{
+      .content-imgClose{
+        img:hover{
+          cursor: pointer;
+        }
+      }
+    }
+  }
+  // .contenair-imgRules{
+  //   height: 60%;
+  //   width: 30%;
+  //   background-image: url(./assets/image-rules.svg);
+  //   background-repeat:no-repeat;
+  //   background-size: cover;
+  //   position: relative;
+  //   background-color: white;
+  //   border-radius: 10px;
+
+  //   img{
+  //     position: absolute;
+  //     top:10px;
+  //     right:10px;
+  //     height: 25px;
+  //     width:25px;
+  //   }
+  // }
+
 }
 </style>
